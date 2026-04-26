@@ -1,0 +1,94 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String      @id @default(uuid())
+  name      String
+  email     String      @unique
+  password  String
+  shopName  String
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  Customers Customer[]
+  Dealers   Dealer[]
+  Inventory Inventory[]
+  Invoices  Invoice[]
+}
+
+model Inventory {
+  id        String   @id @default(uuid())
+  userId    String
+  name      String
+  category  String   @default("Other")
+  hsnCode   String?
+  quantity  Float    @default(0)
+  threshold Float    @default(10)
+  unit      String   @default("pcs")
+  price     Float
+  supplier  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Customer {
+  id          String    @id @default(uuid())
+  userId      String
+  name        String
+  phone       String?
+  address     String?
+  totalBilled Float     @default(0)
+  totalPaid   Float     @default(0)
+  pending     Float     @default(0)
+  status      String    @default("new")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Invoices    Invoice[]
+}
+
+model Dealer {
+  id           String   @id @default(uuid())
+  userId       String
+  name         String
+  phone        String?
+  gst          String?
+  category     String   @default("Other")
+  totalOrdered Float    @default(0)
+  totalPaid    Float    @default(0)
+  pending      Float    @default(0)
+  status       String   @default("new")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Invoice {
+  id              String    @id @default(uuid())
+  userId          String
+  invoiceNumber   String    @unique
+  customerName    String
+  customerPhone   String?
+  customerAddress String?
+  customerId      String?
+  items           Json
+  subtotal        Float     @default(0)
+  taxTotal        Float     @default(0)
+  grandTotal      Float     @default(0)
+  amountPaid      Float     @default(0)
+  balance         Float     @default(0)
+  paymentMode     String    @default("cash")
+  status          String    @default("pending")
+  isTaxFree       Boolean   @default(false)
+  notes           String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  customer        Customer? @relation(fields: [customerId], references: [id])
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}

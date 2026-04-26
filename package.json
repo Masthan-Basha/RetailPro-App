@@ -1,0 +1,12 @@
+{
+  "name": "RetailPro",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start":       "cd frontend && npx expo start",
+    "android":     "cd frontend && npx expo start --android",
+    "ios":         "cd frontend && npx expo start --ios",
+    "backend":     "cd backend && npm run dev",
+    "install:all": "cd frontend && npm install && cd ../backend && npm install"
+  }
+}

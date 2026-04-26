@@ -1,0 +1,24 @@
+{
+  "expo": {
+    "name": "RetailPro",
+    "slug": "retailpro",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#0d0f14"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.retailpro.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#0d0f14"
+      },
+      "package": "com.retailpro.app"
+    },
+    "platforms": ["ios", "android", "web"]
+  }
+}
