@@ -351,7 +351,7 @@ Use the `useTranslate` hook inside any screen to get translated strings.
 | Name | Role |
 |------|------|
 | **Shaik Masthan Basha** | Full Stack Developer |
-| **Shaik Nasir Ahammed** | Team Member |
+| **Shaik Nasir Ahammed** | Frontend Developer |
 
 **Guide:** Ms. E. Susmitha, M.Tech (Ph.D)  
 **Institution:** RGUKT RK Valley · 2024–2025
