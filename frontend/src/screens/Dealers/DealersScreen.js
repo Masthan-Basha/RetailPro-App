@@ -14,9 +14,11 @@ import {buildInvoiceHtml} from '../../utils/invoiceHtml';
 import {SPACING,RADIUS} from '../../utils/theme';
 import { Feather } from '@expo/vector-icons';
 import {useAuth} from '../../context/AuthContext';
+import {useTranslate} from '../../hooks/useTranslate';
 
 export default function DealersScreen(){
   const {theme:T}=useTheme();
+  const {T:trans}=useTranslate();
   const {user}=useAuth();
   const [dealers,setDealers]=useState([]);
   const [loading,setLoading]=useState(true);
@@ -195,20 +197,20 @@ export default function DealersScreen(){
   return(
     <View style={[styles.container,{backgroundColor:T.bgBase}]}>
       <ScreenHeader
-        title="Dealers & Suppliers"
-        subtitle={`${dealers.length} dealers`}
-        action={<TouchableOpacity style={[styles.addBtn,{backgroundColor:T.accent}]} onPress={openAdd}><Text style={styles.addBtnText}>+ Add</Text></TouchableOpacity>}
+        title={trans('dealers')}
+        subtitle={`${dealers.length} ${trans('dealers')}`}
+        action={<TouchableOpacity style={[styles.addBtn,{backgroundColor:T.accent}]} onPress={openAdd}><Text style={styles.addBtnText}>+ {trans('signup')}</Text></TouchableOpacity>}
       />
 
       <View style={[styles.statsRow,{backgroundColor:T.bgSurface,borderBottomColor:T.border}]}>
         <View style={styles.statItem}>
           <Text style={[styles.statVal,{color:T.textPrimary}]}>{dealers.length}</Text>
-          <Text style={[styles.statLbl,{color:T.textSecondary}]}>Total</Text>
+          <Text style={[styles.statLbl,{color:T.textSecondary}]}>{trans('home')}</Text>
         </View>
         <View style={[styles.statDivider,{backgroundColor:T.border}]}/>
         <View style={styles.statItem}>
           <Text style={[styles.statVal,{color:T.red}]}>{formatCurrency(totalPending)}</Text>
-          <Text style={[styles.statLbl,{color:T.textSecondary}]}>Payable</Text>
+          <Text style={[styles.statLbl,{color:T.textSecondary}]}>{trans('deal_dues')}</Text>
         </View>
         <View style={[styles.statDivider,{backgroundColor:T.border}]}/>
         <View style={styles.statItem}>
@@ -241,22 +243,21 @@ export default function DealersScreen(){
         renderItem={renderItem}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={T.accent}/>}
         ListEmptyComponent={
-          loading?<Text style={[styles.loadText,{color:T.textMuted}]}>Loading…</Text>
-          :<EmptyState icon="🏭" title={dealers.length===0?'No dealers yet':'No dealers match your search'} subtitle={dealers.length===0?'Tap + Add to add your first dealer':''}/>
+          loading?<Text style={[styles.loadText,{color:T.textMuted}]}>{trans('loading')}</Text>
+          :<EmptyState icon="🏭" title={dealers.length===0?trans('no_data'):trans('no_data')} subtitle={dealers.length===0?trans('create_first'):''}/>
         }
         contentContainerStyle={filtered.length===0?{flex:1}:{paddingBottom:80}}
         ItemSeparatorComponent={()=><View style={{height:1,backgroundColor:T.border}}/>}
       />
 
-      {/* Add/Edit Modal */}
       <Modal visible={addModal} animationType="slide" presentationStyle="pageSheet" onRequestClose={()=>setAddModal(false)}>
         <View style={[styles.modalContainer,{backgroundColor:T.bgBase}]}>
           <View style={[styles.modalHeader,{borderBottomColor:T.border,backgroundColor:T.bgSurface}]}>
-            <Text style={[styles.modalTitle,{color:T.textPrimary}]}>{editingId?'Edit Dealer':'Add Dealer'}</Text>
+            <Text style={[styles.modalTitle,{color:T.textPrimary}]}>{editingId?trans('save'):trans('signup')}</Text>
             <TouchableOpacity onPress={()=>setAddModal(false)}><Text style={[styles.modalClose,{color:T.textMuted}]}>✕</Text></TouchableOpacity>
           </View>
           <ScrollView contentContainerStyle={styles.modalContent} keyboardShouldPersistTaps="handled">
-            <InputField label="Dealer / Company Name *" placeholder="e.g. National Electricals" value={form.name} onChangeText={v=>setForm({...form,name:v})}/>
+            <InputField label={trans('shop_name')} placeholder="e.g. National Electricals" value={form.name} onChangeText={v=>setForm({...form,name:v})} showTranslate />
             <InputField label="Phone" placeholder="Phone number" value={form.phone} onChangeText={v=>setForm({...form,phone:v})} keyboardType="phone-pad"/>
             <InputField label="GST Number" placeholder="15-character GST" value={form.gst} onChangeText={v=>setForm({...form,gst:v})} autoCapitalize="characters"/>
             {!!editingId&&(
@@ -265,7 +266,7 @@ export default function DealersScreen(){
                 <View style={{flex:1}}><InputField label="Total Paid Override" placeholder="Amount" value={form.totalPaid} onChangeText={v=>setForm({...form,totalPaid:v})} keyboardType="decimal-pad"/></View>
               </View>
             )}
-            <Text style={[styles.fieldLabel,{color:T.textSecondary}]}>Category</Text>
+            <Text style={[styles.fieldLabel,{color:T.textSecondary}]}>{trans('category')}</Text>
             <View style={styles.chipRow}>
               {['Electrical','Hardware','Paint','Other'].map(c=>(
                 <TouchableOpacity key={c} style={[styles.chip,{backgroundColor:T.bgElevated,borderColor:T.border},form.category===c&&{backgroundColor:T.accent,borderColor:T.accent}]} onPress={()=>setForm({...form,category:c})}>
@@ -273,7 +274,7 @@ export default function DealersScreen(){
                 </TouchableOpacity>
               ))}
             </View>
-            <PrimaryButton title={editingId?'Save Changes':'Add Dealer'} onPress={handleAdd} loading={saving} style={{marginTop:SPACING.sm}}/>
+            <PrimaryButton title={editingId?trans('save'):trans('signup')} onPress={handleAdd} loading={saving} style={{marginTop:SPACING.sm}}/>
           </ScrollView>
         </View>
       </Modal>

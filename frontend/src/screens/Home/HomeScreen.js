@@ -7,7 +7,9 @@ import StatCard from '../../components/StatCard';
 import Badge from '../../components/Badge';
 import {salesAPI,inventoryAPI,customerAPI,dealerAPI,invoiceAPI} from '../../utils/api';
 import {formatCurrency,formatDate} from '../../utils/format';
-import {RADIUS,SPACING,SHADOW} from '../../utils/theme';
+import { RADIUS, SPACING, SHADOW } from '../../utils/theme';
+import { useLanguage } from '../../context/LanguageContext';
+import { useTranslate } from '../../hooks/useTranslate';
 import { Feather } from '@expo/vector-icons';
 import { LineChart } from 'react-native-chart-kit';
 import { Dimensions } from 'react-native';
@@ -17,7 +19,15 @@ export default function HomeScreen({navigation}){
   const {theme,isDark,toggleTheme}=useTheme();
   const insets=useSafeAreaInsets();
   const hour=new Date().getHours();
-  const greeting=hour<12?'Good morning':hour<17?'Good afternoon':'Good evening';
+  const { T } = useTranslate();
+  const { language, changeLanguage, languages } = useLanguage();
+  
+  const greetings = {
+    en: hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening',
+    te: hour < 12 ? 'శుభోదయం' : hour < 17 ? 'శుభ మధ్యాహ్నం' : 'శుభ సాయంత్రం',
+    hi: hour < 12 ? 'शुभ प्रभात' : hour < 17 ? 'शुभ दोपहर' : 'शुभ संध्या',
+  };
+  const greeting = greetings[language] || greetings['en'];
 
   const [summary,setSummary]=useState(null);
   const [lowStock,setLowStock]=useState([]);
@@ -75,9 +85,28 @@ export default function HomeScreen({navigation}){
           </TouchableOpacity>
           <TouchableOpacity style={[styles.newBtn,{backgroundColor:theme.accent},SHADOW.md]} onPress={()=>navigation.navigate('Invoices',{screen:'CreateInvoice'})}>
             <Feather name="plus" size={16} color="#fff" />
-            <Text style={styles.newBtnText}>Invoice</Text>
+            <Text style={styles.newBtnText}>{T('invoices')}</Text>
           </TouchableOpacity>
         </View>
+      </View>
+
+      {/* ── Language Toggler for Home ── */}
+      <View style={{flexDirection: 'row', gap: 8, marginBottom: 15, justifyContent: 'center'}}>
+        {['en','te','hi'].map(code => (
+          <TouchableOpacity 
+            key={code} 
+            onPress={() => changeLanguage(code)}
+            style={{
+              paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12, 
+              backgroundColor: language === code ? theme.accent : theme.bgCard,
+              borderWidth: 1, borderColor: theme.border
+            }}
+          >
+            <Text style={{color: language === code ? '#fff' : theme.textSecondary, fontSize: 11, fontWeight: '700'}}>
+              {code.toUpperCase()}
+            </Text>
+          </TouchableOpacity>
+        ))}
       </View>
 
       {/* ── Low Stock Banner ── */}
@@ -93,18 +122,18 @@ export default function HomeScreen({navigation}){
 
       {/* ── Stats Grid ── */}
       <View style={styles.statsGrid}>
-        <StatCard label="Today's Sales"  value={loading?'—':formatCurrency(summary?.todaySales??0)}      iconName="dollar-sign" color={theme.accent} sub={loading?'':String(summary?.invoicesToday??0)+' invoices'}/>
-        <StatCard label="Month Revenue"  value={loading?'—':formatCurrency(summary?.monthSales??0)}       iconName="trending-up" color={theme.green}/>
+        <StatCard label={T('today_sales') || "Today's Sales"}  value={loading?'—':formatCurrency(summary?.todaySales??0)} iconName="dollar-sign" color={theme.accent} sub={loading?'':String(summary?.invoicesToday??0)+' invoices'}/>
+        <StatCard label={T('month_revenue') || "Month Revenue"}  value={loading?'—':formatCurrency(summary?.monthSales??0)} iconName="trending-up" color={theme.green}/>
       </View>
       <View style={styles.statsGrid}>
-        <StatCard label="Customer Dues"  value={loading?'—':formatCurrency(summary?.pendingCustomer??0)}  iconName="users" color={theme.amber} sub={loading?'':String(summary?.overdueCount??0)+' overdue'}/>
-        <StatCard label="Dealer Dues"    value={loading?'—':formatCurrency(summary?.pendingDealer??0)}     iconName="truck" color={theme.red}/>
+        <StatCard label={T('customers_dues')}  value={loading?'—':formatCurrency(summary?.pendingCustomer??0)}  iconName="users" color={theme.amber} sub={loading?'':String(summary?.overdueCount??0)+' overdue'}/>
+        <StatCard label={T('dealers_dues')}    value={loading?'—':formatCurrency(summary?.pendingDealer??0)}     iconName="truck" color={theme.red}/>
       </View>
 
       {/* ── Sales Chart ── */}
       {!loading&&(
         <View style={{marginTop:SPACING.md}}>
-          <Text style={[styles.sectionTitle,{color:theme.textPrimary,marginBottom:SPACING.sm}]}>Sales Performance</Text>
+          <Text style={[styles.sectionTitle,{color:theme.textPrimary,marginBottom:SPACING.sm}]}>{T('sales_perf')}</Text>
           <LineChart
             data={{
               labels:["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],
@@ -135,10 +164,10 @@ export default function HomeScreen({navigation}){
       )}
 
       {/* ── Low Stock List ── */}
-      <SectionHeader title="Low Stock" iconName="alert-triangle" iconColor={theme.amber} badge={lowStock.length} link="View all" onLink={()=>navigation.navigate('Inventory')}/>
+      <SectionHeader title={T('low_stock')} iconName="alert-triangle" iconColor={theme.amber} badge={lowStock.length} link={T('view_all')} onLink={()=>navigation.navigate('Inventory')}/>
       <Card>
-        {loading&&<Text style={[styles.empty,{color:theme.textMuted}]}>Loading…</Text>}
-        {!loading&&lowStock.length===0&&<Text style={[styles.empty,{color:theme.textMuted}]}>All items sufficiently stocked ✓</Text>}
+        {loading&&<Text style={[styles.empty,{color:theme.textMuted}]}>{T('loading')}</Text>}
+        {!loading&&lowStock.length===0&&<Text style={[styles.empty,{color:theme.textMuted}]}>{T('stock_checked')}</Text>}
         {!loading&&lowStock.map((it,i)=>(
           <View key={it._id} style={[styles.row,i>0&&{borderTopWidth:1,borderTopColor:theme.border}]}>
             <Text style={[styles.rowName,{color:theme.textPrimary}]}>{it.name}</Text>
@@ -148,10 +177,10 @@ export default function HomeScreen({navigation}){
       </Card>
 
       {/* ── Pending Payments ── */}
-      <SectionHeader title="Pending Payments" iconName="bell" iconColor={theme.red} badge={0} link="View" onLink={()=>navigation.navigate('Customers')}/>
+      <SectionHeader title={T('pending_pay')} iconName="bell" iconColor={theme.red} badge={0} link={T('view_all')} onLink={()=>navigation.navigate('Customers')}/>
       <Card>
-        {loading&&<Text style={[styles.empty,{color:theme.textMuted}]}>Loading…</Text>}
-        {!loading&&pending.length===0&&<Text style={[styles.empty,{color:theme.textMuted}]}>No pending payments</Text>}
+        {loading&&<Text style={[styles.empty,{color:theme.textMuted}]}>{T('loading')}</Text>}
+        {!loading&&pending.length===0&&<Text style={[styles.empty,{color:theme.textMuted}]}>{T('no_pending')}</Text>}
         {!loading&&pending.map((p,i)=>(
           <View key={p._id} style={[styles.row,i>0&&{borderTopWidth:1,borderTopColor:theme.border}]}>
             <View>
@@ -164,12 +193,12 @@ export default function HomeScreen({navigation}){
       </Card>
 
       {/* ── Recent Invoices ── */}
-      <SectionHeader title="Recent Invoices" iconName="clipboard" badge={0} link="View all" onLink={()=>navigation.navigate('Invoices')}/>
+      <SectionHeader title={T('recent_inv')} iconName="clipboard" badge={0} link={T('view_all')} onLink={()=>navigation.navigate('Invoices')}/>
       <Card style={{marginBottom:SPACING.xl}}>
-        {loading&&<Text style={[styles.empty,{color:theme.textMuted}]}>Loading…</Text>}
+        {loading&&<Text style={[styles.empty,{color:theme.textMuted}]}>{T('loading')}</Text>}
         {!loading&&invoices.length===0&&(
           <TouchableOpacity onPress={()=>navigation.navigate('Invoices',{screen:'CreateInvoice'})}>
-            <Text style={[styles.empty,{color:theme.accent}]}>No invoices yet — create your first one</Text>
+            <Text style={[styles.empty,{color:theme.accent}]}>{T('create_first')}</Text>
           </TouchableOpacity>
         )}
         {!loading&&invoices.map((inv,i)=>(
@@ -192,7 +221,7 @@ export default function HomeScreen({navigation}){
 const styles=StyleSheet.create({
   content:{padding:SPACING.md},
   headerRow:{flexDirection:'row',justifyContent:'space-between',alignItems:'center',marginBottom:SPACING.md},
-  greeting:{fontSize:16,fontWeight:'700'},
+  greeting:{fontSize:15,fontWeight:'700'},
   shopName:{fontSize:14,marginTop:2},
   iconBtn:{width:40,height:40,borderRadius:RADIUS.md,alignItems:'center',justifyContent:'center',borderWidth:1},
   logoutBtn:{width:40,height:40,borderRadius:RADIUS.md,alignItems:'center',justifyContent:'center',borderWidth:1},

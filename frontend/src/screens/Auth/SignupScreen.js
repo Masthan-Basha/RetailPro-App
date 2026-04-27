@@ -2,14 +2,18 @@ import React,{useState} from 'react';
 import {View,Text,ScrollView,TouchableOpacity,StyleSheet,KeyboardAvoidingView,Platform} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useAuth} from '../../context/AuthContext';
+import {useLanguage} from '../../context/LanguageContext';
 import InputField from '../../components/InputField';
 import PrimaryButton from '../../components/PrimaryButton';
 import {COLORS,SPACING,RADIUS} from '../../utils/theme';
 import {LinearGradient} from 'expo-linear-gradient';
+import {useTranslate} from '../../hooks/useTranslate';
 
 export default function SignupScreen({navigation}){
   const {signup}=useAuth();
   const insets=useSafeAreaInsets();
+  const {language, changeLanguage} = useLanguage();
+  const {T}=useTranslate();
   const [form,setForm]=useState({name:'',shopName:'',email:'',password:'',confirm:''});
   const [error,setError]=useState('');
   const [loading,setLoading]=useState(false);
@@ -39,21 +43,43 @@ export default function SignupScreen({navigation}){
           <View style={styles.logoMark}><Text style={styles.logoLetter}>R</Text></View>
           <Text style={styles.logoText}>Retail<Text style={{fontWeight:'800'}}>Pro</Text></Text>
         </View>
-        <Text style={styles.title}>Create account</Text>
-        <Text style={styles.subtitle}>Set up your retail management workspace</Text>
+        <Text style={styles.title}>{T('create_account')}</Text>
+        <Text style={styles.subtitle}>{T('join_pro')}</Text>
+        
+        <View style={{paddingVertical: 10, marginBottom: 15, alignItems: 'center'}}>
+          <Text style={{color: COLORS.textMuted, fontSize: 10, marginBottom: 10, fontWeight: '700', letterSpacing: 1}}>{T('onboarding')}</Text>
+          <View style={{flexDirection: 'row', gap: 8, justifyContent: 'center'}}>
+            {['en','te','hi','ta','kn'].map(code => (
+              <TouchableOpacity 
+                key={code} 
+                onPress={() => changeLanguage(code)}
+                style={{
+                  paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12, 
+                  backgroundColor: language === code ? COLORS.accent : 'transparent',
+                  borderWidth: 1, borderColor: language === code ? COLORS.accent : COLORS.border
+                }}
+              >
+                <Text style={{color: language === code ? '#fff' : COLORS.textSecondary, fontSize: 11, fontWeight: '700'}}>
+                  {code.toUpperCase()}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
         <View style={styles.card}>
           {!!error&&<View style={styles.errBox}><Text style={styles.errText}>{error}</Text></View>}
-          <InputField label="Full Name" placeholder="Ravi Kumar" value={form.name} onChangeText={v=>setForm({...form,name:v})}/>
-          <InputField label="Shop Name" placeholder="Kumar Hardware" value={form.shopName} onChangeText={v=>setForm({...form,shopName:v})}/>
-          <InputField label="Email address" placeholder="you@shop.com" value={form.email} onChangeText={v=>setForm({...form,email:v})} keyboardType="email-address" autoCapitalize="none"/>
-          <InputField label="Password" placeholder="Min 8 chars, 1 Upper, 1 lower, 1 num, 1 spec" value={form.password} onChangeText={v=>setForm({...form,password:v})} secureTextEntry/>
-          <InputField label="Confirm Password" placeholder="Re-enter password" value={form.confirm} onChangeText={v=>setForm({...form,confirm:v})} secureTextEntry/>
-          <PrimaryButton title="Create Account" onPress={handle} loading={loading} color={COLORS.green} style={{marginTop:4}}/>
+          <InputField label={T('full_name')} placeholder="Ravi Kumar" value={form.name} onChangeText={v=>setForm({...form,name:v})}/>
+          <InputField label={T('shop_name')} placeholder="Kumar Hardware" value={form.shopName} onChangeText={v=>setForm({...form,shopName:v})} showTranslate />
+          <InputField label={T('email_addr')} placeholder="you@shop.com" value={form.email} onChangeText={v=>setForm({...form,email:v})} keyboardType="email-address" autoCapitalize="none"/>
+          <InputField label={T('new_pass')} placeholder="Min 8 chars, 1 Upper, 1 lower, 1 num, 1 spec" value={form.password} onChangeText={v=>setForm({...form,password:v})} secureTextEntry/>
+          <InputField label={T('confirm_pass')} placeholder="Re-enter password" value={form.confirm} onChangeText={v=>setForm({...form,confirm:v})} secureTextEntry/>
+          <PrimaryButton title={T('create_account')} onPress={handle} loading={loading} color={COLORS.green} style={{marginTop:4}}/>
         </View>
         <View style={styles.switchRow}>
-          <Text style={styles.switchText}>Already have an account? </Text>
+          <Text style={styles.switchText}>{T('already_account')} </Text>
           <TouchableOpacity onPress={()=>navigation.navigate('Login')}>
-            <Text style={styles.link}>Sign in</Text>
+            <Text style={styles.link}>{T('sign_in')}</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>

@@ -3,6 +3,7 @@ import { View, Text } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { AuthProvider } from './src/context/AuthContext';
+import { LanguageProvider } from './src/context/LanguageContext';
 import AppNavigator from './src/navigation/AppNavigator';
 
 class ErrorBoundary extends React.Component {
@@ -29,11 +30,13 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <ErrorBoundary>
-        <AuthProvider>
-          <ErrorBoundary>
-            <AppNavigator />
-          </ErrorBoundary>
-        </AuthProvider>
+        <LanguageProvider>
+          <AuthProvider>
+            <ErrorBoundary>
+              <AppNavigator />
+            </ErrorBoundary>
+          </AuthProvider>
+        </LanguageProvider>
       </ErrorBoundary>
       {/* Toast must be last child so it renders on top */}
       <Toast />

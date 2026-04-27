@@ -7,9 +7,11 @@ import EmptyState from '../../components/EmptyState';
 import InputField from '../../components/InputField';
 import PrimaryButton from '../../components/PrimaryButton';
 import {useTheme} from '../../context/ThemeContext';
+import {useLanguage} from '../../context/LanguageContext';
 import {inventoryAPI, dealerAPI} from '../../utils/api';
 import {formatCurrency,formatNumber} from '../../utils/format';
 import {SPACING,RADIUS} from '../../utils/theme';
+import {useTranslate} from '../../hooks/useTranslate';
 
 const CATS=['All','Electrical','Hardware','Paint','Other'];
 const UNITS=['pcs','kg','m','l','can','roll','box','set'];
@@ -17,6 +19,8 @@ const emptyForm={name:'',category:'Electrical',hsnCode:'',quantity:'',threshold:
 
 export default function InventoryScreen(){
   const {theme}=useTheme();
+  const {T} = useTranslate();
+  const {language, changeLanguage} = useLanguage();
   const [items,setItems]=useState([]);
   const [loading,setLoading]=useState(true);
   const [refreshing,setRefreshing]=useState(false);
@@ -120,28 +124,28 @@ export default function InventoryScreen(){
     ]);
   };
 
-  const T=theme;
+  const S = theme;
 
   const renderItem=({item})=>{
     const isLow=Number(item.quantity)<=Number(item.threshold);
     return(
-      <View style={[styles.row,{backgroundColor:T.bgCard}]}>
+      <View style={[styles.row,{backgroundColor:S.bgCard}]}>
         <View style={styles.rowMain}>
-          <Text style={[styles.itemName,{color:T.textPrimary}]}>{item.name}</Text>
-          <Text style={[styles.itemSub,{color:T.textMuted}]}>{item.category} · HSN: {item.hsnCode||'—'} · {item.supplier||'—'}</Text>
+          <Text style={[styles.itemName,{color:S.textPrimary}]}>{item.name}</Text>
+          <Text style={[styles.itemSub,{color:S.textMuted}]}>{item.category} · HSN: {item.hsnCode||'—'} · {item.supplier||'—'}</Text>
           <View style={styles.rowMeta}>
-            <View style={[styles.qtyBadge,{backgroundColor:isLow?T.redBg:T.greenBg}]}>
-              <Text style={[styles.qtyText,{color:isLow?T.red:T.green}]}>{item.quantity} {item.unit}</Text>
+            <View style={[styles.qtyBadge,{backgroundColor:isLow?S.redBg:S.greenBg}]}>
+              <Text style={[styles.qtyText,{color:isLow?S.red:S.green}]}>{item.quantity} {item.unit}</Text>
             </View>
-            <Text style={[styles.priceText,{color:T.textMuted}]}>{formatCurrency(item.price)} each</Text>
-            <Text style={[styles.valText,{color:T.textSecondary}]}>{formatCurrency(item.quantity*item.price)}</Text>
+            <Text style={[styles.priceText,{color:S.textMuted}]}>{formatCurrency(item.price)} {T('invoice_total') || 'each'}</Text>
+            <Text style={[styles.valText,{color:S.textSecondary}]}>{formatCurrency(item.quantity*item.price)}</Text>
           </View>
         </View>
         <View style={styles.rowActions}>
-          <Badge status={isLow?'overdue':'paid'} label={isLow?'Low Stock':'In Stock'}/>
+          <Badge status={isLow?'overdue':'paid'} label={isLow?T('low_stock'):(T('total_amount') || 'In Stock')}/>
           <View style={styles.actionBtns}>
-            <TouchableOpacity style={[styles.iconBtn,{backgroundColor:T.accentBg,borderWidth:1,borderColor:T.accent+'44',borderRadius:RADIUS.sm}]} onPress={()=>openEdit(item)}><Text>✏️</Text></TouchableOpacity>
-            <TouchableOpacity style={[styles.iconBtn,{backgroundColor:T.redBg,borderWidth:1,borderColor:T.red+'44',borderRadius:RADIUS.sm}]} onPress={()=>handleDelete(item._id)}><Text>🗑️</Text></TouchableOpacity>
+            <TouchableOpacity style={[styles.iconBtn,{backgroundColor:S.accentBg,borderWidth:1,borderColor:S.accent+'44',borderRadius:RADIUS.sm}]} onPress={()=>openEdit(item)}><Text>✏️</Text></TouchableOpacity>
+            <TouchableOpacity style={[styles.iconBtn,{backgroundColor:S.redBg,borderWidth:1,borderColor:S.red+'44',borderRadius:RADIUS.sm}]} onPress={()=>handleDelete(item._id)}><Text>🗑️</Text></TouchableOpacity>
           </View>
         </View>
       </View>
@@ -149,43 +153,43 @@ export default function InventoryScreen(){
   };
 
   return(
-    <View style={[styles.container,{backgroundColor:T.bgBase}]}>
+    <View style={[styles.container,{backgroundColor:S.bgBase}]}>
       <ScreenHeader
-        title="Inventory"
+        title={T('inventory')}
         subtitle={`${items.length} items · ${lowCount} low stock`}
-        action={<TouchableOpacity style={[styles.addBtn,{backgroundColor:T.accent}]} onPress={openAdd}><Text style={styles.addBtnText}>+ Add</Text></TouchableOpacity>}
+        action={<TouchableOpacity style={[styles.addBtn,{backgroundColor:S.accent}]} onPress={openAdd}><Text style={styles.addBtnText}>+ {T('add_item')}</Text></TouchableOpacity>}
       />
 
-      <View style={[styles.statsRow,{backgroundColor:T.bgSurface,borderBottomColor:T.border}]}>
+      <View style={[styles.statsRow,{backgroundColor:S.bgSurface,borderBottomColor:S.border}]}>
         <View style={styles.statItem}>
-          <Text style={[styles.statVal,{color:T.textPrimary}]}>{formatNumber(items.length)}</Text>
-          <Text style={[styles.statLbl,{color:T.textSecondary}]}>Total Items</Text>
+          <Text style={[styles.statVal,{color:S.textPrimary}]}>{formatNumber(items.length)}</Text>
+          <Text style={[styles.statLbl,{color:S.textSecondary}]}>{T('customers')}</Text>
         </View>
-        <View style={[styles.statDivider,{backgroundColor:T.border}]}/>
+        <View style={[styles.statDivider,{backgroundColor:S.border}]}/>
         <View style={styles.statItem}>
-          <Text style={[styles.statVal,{color:T.amber}]}>{lowCount}</Text>
-          <Text style={[styles.statLbl,{color:T.textSecondary}]}>Low Stock</Text>
+          <Text style={[styles.statVal,{color:S.amber}]}>{lowCount}</Text>
+          <Text style={[styles.statLbl,{color:S.textSecondary}]}>{T('low_stock')}</Text>
         </View>
-        <View style={[styles.statDivider,{backgroundColor:T.border}]}/>
+        <View style={[styles.statDivider,{backgroundColor:S.border}]}/>
         <View style={styles.statItem}>
-          <Text style={[styles.statVal,{color:T.green}]}>{formatCurrency(totalVal)}</Text>
-          <Text style={[styles.statLbl,{color:T.textSecondary}]}>Total Value</Text>
+          <Text style={[styles.statVal,{color:S.green}]}>{formatCurrency(totalVal)}</Text>
+          <Text style={[styles.statLbl,{color:S.textSecondary}]}>{T('month_revenue')}</Text>
         </View>
       </View>
 
       <View style={{padding:SPACING.md,paddingBottom:0,gap:SPACING.sm}}>
         <TextInput 
-          style={[styles.searchInput,{backgroundColor:T.bgCard,borderColor:T.border,color:T.textPrimary}]} 
-          placeholder="Search items or HSN…" 
-          placeholderTextColor={T.textMuted} 
+          style={[styles.searchInput,{backgroundColor:S.bgCard,borderColor:S.border,color:S.textPrimary}]} 
+          placeholder={T('loading')} 
+          placeholderTextColor={S.textMuted} 
           value={search} 
           onChangeText={setSearch}
         />
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.catScroll} contentContainerStyle={styles.catRow}>
-          {CATS.map(c=>(
-            <TouchableOpacity key={c} style={[styles.catTab,cat===c?{backgroundColor:T.accent,borderColor:T.accent}:{backgroundColor:T.bgCard,borderColor:T.border}]} onPress={()=>setCat(c)}>
-              <Text style={[styles.catText,{color:T.textSecondary},cat===c&&{color:'#fff'}]}>{c}</Text>
+          {['All','Electrical','Hardware','Paint','Other'].map(c=>(
+            <TouchableOpacity key={c} style={[styles.catTab,cat===c?{backgroundColor:S.accent,borderColor:S.accent}:{backgroundColor:S.bgCard,borderColor:S.border}]} onPress={()=>setCat(c)}>
+              <Text style={[styles.catText,{color:S.textSecondary},cat===c&&{color:'#fff'}]}>{c==='All'?'All':T(c.toLowerCase())||c}</Text>
             </TouchableOpacity>
           ))}
         </ScrollView>
@@ -195,29 +199,50 @@ export default function InventoryScreen(){
         data={filtered}
         keyExtractor={i=>i._id}
         renderItem={renderItem}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={T.accent}/>}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={S.accent}/>}
         ListEmptyComponent={
-          loading?<Text style={[styles.loadText,{color:T.textMuted}]}>Loading…</Text>
-          :<EmptyState icon="📦" title={items.length===0?'No items yet':'No items match your search'} subtitle={items.length===0?'Tap + Add to add your first item':''}/>
+          loading?<Text style={[styles.loadText,{color:S.textMuted}]}>Loading…</Text>
+          :<EmptyState icon="📦" title={items.length===0?T('no_data'):T('loading')} subtitle={''}/>
         }
         contentContainerStyle={filtered.length===0?{flex:1}:{paddingBottom:80}}
-        ItemSeparatorComponent={()=><View style={[styles.separator,{backgroundColor:T.border}]}/>}
+        ItemSeparatorComponent={()=><View style={[styles.separator,{backgroundColor:S.border}]}/>}
       />
 
-      {/* Add/Edit Modal */}
       <Modal visible={modal} animationType="slide" presentationStyle="pageSheet" onRequestClose={()=>setModal(false)}>
-        <View style={[styles.modalContainer,{backgroundColor:T.bgBase}]}>
-          <View style={[styles.modalHeader,{borderBottomColor:T.border,backgroundColor:T.bgSurface}]}>
-            <Text style={[styles.modalTitle,{color:T.textPrimary}]}>{editItem?'Edit Item':'Add Item'}</Text>
-            <TouchableOpacity onPress={()=>setModal(false)}><Text style={[styles.modalClose,{color:T.textMuted}]}>✕</Text></TouchableOpacity>
+        <View style={[styles.modalContainer,{backgroundColor:S.bgBase}]}>
+          <View style={[styles.modalHeader,{borderBottomColor:S.border,backgroundColor:S.bgSurface}]}>
+            <Text style={[styles.modalTitle,{color:S.textPrimary}]}>{editItem?T('save'):T('add_item')}</Text>
+            <TouchableOpacity onPress={()=>setModal(false)}><Text style={[styles.modalClose,{color:S.textMuted}]}>✕</Text></TouchableOpacity>
           </View>
+          
+          <View style={{padding: 12, backgroundColor: S.bgCard, borderBottomWidth: 1, borderBottomColor: S.border}}>
+            <Text style={{color: S.textMuted, fontSize: 10, marginBottom: 8, fontWeight: '700', letterSpacing: 1}}>{T('choose_lang')}</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{gap: 8}}>
+              {['en','te','hi','ta','kn'].map(code => (
+                <TouchableOpacity 
+                  key={code} 
+                  onPress={() => changeLanguage(code)}
+                  style={{
+                    paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12, 
+                    backgroundColor: language === code ? S.accent : S.bgSurface,
+                    borderWidth: 1, borderColor: language === code ? S.accent : S.border
+                  }}
+                >
+                  <Text style={{color: language === code ? '#fff' : S.textSecondary, fontSize: 11, fontWeight: '700'}}>
+                    {code.toUpperCase()}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+
           <ScrollView contentContainerStyle={styles.modalContent} keyboardShouldPersistTaps="handled">
-            <InputField label="Item Name *" placeholder="e.g. Anchor Wire 2.5mm" value={form.name} onChangeText={v=>setForm({...form,name:v})}/>
-            <Text style={[styles.fieldLabel,{color:T.textSecondary}]}>Category</Text>
+            <InputField label={T('item_name')} placeholder="e.g. Anchor Wire 2.5mm" value={form.name} onChangeText={v=>setForm({...form,name:v})} showTranslate />
+            <Text style={[styles.fieldLabel,{color:S.textSecondary}]}>{T('category')}</Text>
             <View style={styles.chipRow}>
               {['Electrical','Hardware','Paint','Other'].map(c=>(
-                <TouchableOpacity key={c} style={[styles.chip,{backgroundColor:T.bgElevated,borderColor:T.border},form.category===c&&{backgroundColor:T.accent,borderColor:T.accent}]} onPress={()=>setForm({...form,category:c})}>
-                  <Text style={[styles.chipText,{color:T.textMuted},form.category===c&&{color:'#fff',fontWeight:'600'}]}>{c}</Text>
+                <TouchableOpacity key={c} style={[styles.chip,{backgroundColor:S.bgElevated,borderColor:S.border},form.category===c&&{backgroundColor:S.accent,borderColor:S.accent}]} onPress={()=>setForm({...form,category:c})}>
+                  <Text style={[styles.chipText,{color:S.textMuted},form.category===c&&{color:'#fff',fontWeight:'600'}]}>{T(c.toLowerCase())||c}</Text>
                 </TouchableOpacity>
               ))}
             </View>
@@ -225,38 +250,38 @@ export default function InventoryScreen(){
               <View style={{flex:1}}><InputField label="HSN Code" placeholder="e.g. 8544" value={form.hsnCode} onChangeText={v=>setForm({...form,hsnCode:v})}/></View>
               <View style={{width:SPACING.sm}}/>
               <View style={{flex:1}}>
-                <Text style={[styles.fieldLabel,{color:T.textSecondary}]}>Unit</Text>
+                <Text style={[styles.fieldLabel,{color:S.textSecondary}]}>{T('unit')}</Text>
                 <View style={styles.chipRow}>
                   {UNITS.map(u=>(
-                    <TouchableOpacity key={u} style={[styles.chip,{backgroundColor:T.bgElevated,borderColor:T.border},form.unit===u&&{backgroundColor:T.accent,borderColor:T.accent}]} onPress={()=>setForm({...form,unit:u})}>
-                      <Text style={[styles.chipText,{color:T.textMuted},form.unit===u&&{color:'#fff',fontWeight:'600'}]}>{u}</Text>
+                    <TouchableOpacity key={u} style={[styles.chip,{backgroundColor:S.bgElevated,borderColor:S.border},form.unit===u&&{backgroundColor:S.accent,borderColor:S.accent}]} onPress={()=>setForm({...form,unit:u})}>
+                      <Text style={[styles.chipText,{color:S.textMuted},form.unit===u&&{color:'#fff',fontWeight:'600'}]}>{u}</Text>
                     </TouchableOpacity>
                   ))}
                 </View>
               </View>
             </View>
             <View style={styles.twoCol}>
-              <View style={{flex:1}}><InputField label="Current Stock *" placeholder="0" value={form.quantity} onChangeText={v=>setForm({...form,quantity:v})} keyboardType="numeric"/></View>
+              <View style={{flex:1}}><InputField label={T('stock')} placeholder="0" value={form.quantity} onChangeText={v=>setForm({...form,quantity:v})} keyboardType="numeric"/></View>
               <View style={{width:SPACING.sm}}/>
-              <View style={{flex:1}}><InputField label="Min Threshold *" placeholder="10" value={form.threshold} onChangeText={v=>setForm({...form,threshold:v})} keyboardType="numeric"/></View>
+              <View style={{flex:1}}><InputField label={T('low_stock')} placeholder="10" value={form.threshold} onChangeText={v=>setForm({...form,threshold:v})} keyboardType="numeric"/></View>
             </View>
-            <InputField label="Unit Price (₹)" placeholder="0.00" value={form.price} onChangeText={v=>setForm({...form,price:v})} keyboardType="decimal-pad"/>
-            <Text style={[styles.fieldLabel,{color:T.textSecondary}]}>Supplier (Dealer)</Text>
+            <InputField label={T('price')} placeholder="0.00" value={form.price} onChangeText={v=>setForm({...form,price:v})} keyboardType="decimal-pad"/>
+            <Text style={[styles.fieldLabel,{color:S.textSecondary}]}>{T('dealers')}</Text>
             {dealers.length>0?(
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={[styles.chipRow,{marginBottom:0}]}>
-                <TouchableOpacity style={[styles.chip,{backgroundColor:T.bgElevated,borderColor:T.border},!form.supplier&&{backgroundColor:T.accent,borderColor:T.accent}]} onPress={()=>setForm({...form,supplier:''})}>
-                  <Text style={[styles.chipText,{color:T.textMuted},!form.supplier&&{color:'#fff',fontWeight:'600'}]}>None</Text>
+                <TouchableOpacity style={[styles.chip,{backgroundColor:S.bgElevated,borderColor:S.border},!form.supplier&&{backgroundColor:S.accent,borderColor:S.accent}]} onPress={()=>setForm({...form,supplier:''})}>
+                  <Text style={[styles.chipText,{color:S.textMuted},!form.supplier&&{color:'#fff',fontWeight:'600'}]}>None</Text>
                 </TouchableOpacity>
                 {dealers.map(d=>(
-                  <TouchableOpacity key={d._id} style={[styles.chip,{backgroundColor:T.bgElevated,borderColor:T.border},form.supplier===d.name&&{backgroundColor:T.accent,borderColor:T.accent}]} onPress={()=>setForm({...form,supplier:d.name})}>
-                    <Text style={[styles.chipText,{color:T.textMuted},form.supplier===d.name&&{color:'#fff',fontWeight:'600'}]}>{d.name}</Text>
+                  <TouchableOpacity key={d._id} style={[styles.chip,{backgroundColor:S.bgElevated,borderColor:S.border},form.supplier===d.name&&{backgroundColor:S.accent,borderColor:S.accent}]} onPress={()=>setForm({...form,supplier:d.name})}>
+                    <Text style={[styles.chipText,{color:S.textMuted},form.supplier===d.name&&{color:'#fff',fontWeight:'600'}]}>{d.name}</Text>
                   </TouchableOpacity>
                 ))}
               </ScrollView>
             ):(
-              <Text style={{color:T.textMuted,fontSize:12,marginBottom:16}}>No dealers found. Add them in Dealers screen.</Text>
+              <Text style={{color:S.textMuted,fontSize:12,marginBottom:16}}>{T('no_data')}</Text>
             )}
-            <PrimaryButton title={editItem?'Update Item':'Add Item'} onPress={handleSave} loading={saving} style={{marginTop:SPACING.xl}}/>
+            <PrimaryButton title={editItem?T('save'):T('add_item')} onPress={handleSave} loading={saving} style={{marginTop:SPACING.xl}}/>
           </ScrollView>
         </View>
       </Modal>

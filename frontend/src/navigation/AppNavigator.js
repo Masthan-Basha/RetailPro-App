@@ -10,6 +10,8 @@ import { Feather } from '@expo/vector-icons';
 import LoginScreen          from '../screens/Auth/LoginScreen';
 import SignupScreen         from '../screens/Auth/SignupScreen';
 import WelcomeScreen        from '../screens/Auth/WelcomeScreen';
+import ForgotPasswordScreen from '../screens/Auth/ForgotPasswordScreen';
+import ResetPasswordScreen  from '../screens/Auth/ResetPasswordScreen';
 import HomeScreen           from '../screens/Home/HomeScreen';
 import InvoiceListScreen    from '../screens/Invoice/InvoiceListScreen';
 import CreateInvoiceScreen  from '../screens/Invoice/CreateInvoiceScreen';
@@ -61,6 +63,8 @@ function AuthStack(){
       <Stack.Screen name="Welcome" component={WelcomeScreen}/>
       <Stack.Screen name="Login"  component={LoginScreen}/>
       <Stack.Screen name="Signup" component={SignupScreen}/>
+      <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen}/>
+      <Stack.Screen name="ResetPassword" component={ResetPasswordScreen}/>
     </Stack.Navigator>
   );
 }

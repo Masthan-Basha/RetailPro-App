@@ -45,7 +45,23 @@ export function AuthProvider({children}){
     await AsyncStorage.multiRemove([SESSION_KEY,TOKEN_KEY]);
   };
 
-  return <AuthContext.Provider value={{user,loading,login,signup,logout}}>{children}</AuthContext.Provider>;
+  const forgotPassword = async (email) => {
+    const res = await authAPI.forgotPassword(email);
+    return res.data;
+  };
+
+  const resetPassword = async (token, password) => {
+    const res = await authAPI.resetPassword(token, password);
+    return res.data;
+  };
+
+  const googleLogin = async (idToken) => {
+    const res = await authAPI.googleLogin(idToken);
+    await _save(res.data);
+    return res.data;
+  };
+
+  return <AuthContext.Provider value={{user,loading,login,signup,logout,forgotPassword,resetPassword,googleLogin}}>{children}</AuthContext.Provider>;
 }
 
 export const useAuth = () => useContext(AuthContext);

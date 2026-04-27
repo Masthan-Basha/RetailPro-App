@@ -11,9 +11,11 @@ import {buildInvoiceHtml} from '../../utils/invoiceHtml';
 import {SPACING,RADIUS} from '../../utils/theme';
 import {useAuth} from '../../context/AuthContext';
 import { Feather } from '@expo/vector-icons';
+import {useTranslate} from '../../hooks/useTranslate';
 
 export default function InvoiceDetailScreen({route,navigation}){
   const {theme}=useTheme();
+  const {T}=useTranslate();
   const {user}=useAuth();
   const [invoice,setInvoice]=useState(route.params?.invoice||null);
   const [loading,setLoading]=useState(!route.params?.invoice);
@@ -57,7 +59,7 @@ export default function InvoiceDetailScreen({route,navigation}){
 
   if(!invoice) return(
     <View style={[styles.center,{backgroundColor:theme.bgBase}]}>
-      <Text style={[styles.emptyText,{color:theme.textMuted}]}>Invoice not found.</Text>
+      <Text style={[styles.emptyText,{color:theme.textMuted}]}>{T('no_data')}</Text>
     </View>
   );
 
@@ -78,7 +80,7 @@ export default function InvoiceDetailScreen({route,navigation}){
         <View style={[styles.card,{backgroundColor:theme.bgCard,borderColor:theme.border}]}>
           <View style={styles.cardRow}>
             <View>
-              <Text style={[styles.label,{color:theme.textMuted}]}>Invoice No.</Text>
+              <Text style={[styles.label,{color:theme.textMuted}]}>{T('amount')}</Text>
               <Text style={[styles.invNum,{color:theme.accent}]}>{invoice.invoiceNumber||'—'}</Text>
             </View>
             <Badge status={invoice.status||'pending'}/>
@@ -86,11 +88,11 @@ export default function InvoiceDetailScreen({route,navigation}){
           <View style={[styles.divider,{backgroundColor:theme.border}]}/>
           <View style={styles.metaGrid}>
             <View style={styles.metaItem}>
-              <Text style={[styles.label,{color:theme.textMuted}]}>Date</Text>
+              <Text style={[styles.label,{color:theme.textMuted}]}>{T('customers')}</Text>
               <Text style={[styles.metaVal,{color:theme.textPrimary}]}>{formatDate(invoice.createdAt)}</Text>
             </View>
             <View style={styles.metaItem}>
-              <Text style={[styles.label,{color:theme.textMuted}]}>Payment</Text>
+              <Text style={[styles.label,{color:theme.textMuted}]}>{T('status')}</Text>
               <Text style={[styles.metaVal,{color:theme.textPrimary,textTransform:'capitalize'}]}>{invoice.paymentMode||'cash'}</Text>
             </View>
             <View style={styles.metaItem}>
@@ -101,7 +103,7 @@ export default function InvoiceDetailScreen({route,navigation}){
         </View>
 
         {/* Customer Info */}
-        <Text style={[styles.sec,{color:theme.textPrimary}]}>Customer</Text>
+        <Text style={[styles.sec,{color:theme.textPrimary}]}>{T('customers')}</Text>
         <View style={[styles.card,{backgroundColor:theme.bgCard,borderColor:theme.border}]}>
           <Text style={[styles.custName,{color:theme.textPrimary}]}>{invoice.customerName||'—'}</Text>
           {invoice.customerPhone&&<Text style={[styles.custSub,{color:theme.textMuted}]}>📞 {invoice.customerPhone}</Text>}
@@ -109,14 +111,14 @@ export default function InvoiceDetailScreen({route,navigation}){
         </View>
 
         {/* Items Table */}
-        <Text style={[styles.sec,{color:theme.textPrimary}]}>Items</Text>
+        <Text style={[styles.sec,{color:theme.textPrimary}]}>{T('inventory')}</Text>
         <View style={[styles.card,{backgroundColor:theme.bgCard,borderColor:theme.border,padding:0,overflow:'hidden'}]}>
           {/* Table Header */}
           <View style={[styles.tableHead,{backgroundColor:theme.accent}]}>
-            <Text style={[styles.thItem,{color:'#fff'}]}>Item</Text>
+            <Text style={[styles.thItem,{color:'#fff'}]}>{T('item_name')}</Text>
             <Text style={[styles.thQty,{color:'#fff'}]}>Qty</Text>
-            <Text style={[styles.thPrice,{color:'#fff'}]}>Price</Text>
-            <Text style={[styles.thTotal,{color:'#fff'}]}>Total</Text>
+            <Text style={[styles.thPrice,{color:'#fff'}]}>{T('price')}</Text>
+            <Text style={[styles.thTotal,{color:'#fff'}]}>{T('amount')}</Text>
           </View>
           {items.map((it,idx)=>{
             const lineTotal=Number(it.qty||1)*Number(it.price||0);
@@ -136,7 +138,7 @@ export default function InvoiceDetailScreen({route,navigation}){
         </View>
 
         {/* Summary */}
-        <Text style={[styles.sec,{color:theme.textPrimary}]}>Summary</Text>
+        <Text style={[styles.sec,{color:theme.textPrimary}]}>{T('sales_perf')}</Text>
         <View style={[styles.card,{backgroundColor:theme.bgCard,borderColor:theme.border}]}>
           {[
             ['Subtotal',formatCurrency(invoice.subtotal||0),theme.textPrimary],
@@ -148,17 +150,17 @@ export default function InvoiceDetailScreen({route,navigation}){
             </View>
           ))}
           <View style={[styles.sumRow,styles.grandRow,{borderTopColor:theme.border}]}>
-            <Text style={[styles.grandL,{color:theme.textPrimary}]}>Grand Total</Text>
+            <Text style={[styles.grandL,{color:theme.textPrimary}]}>{T('month_revenue')}</Text>
             <Text style={[styles.grandV,{color:theme.textPrimary}]}>{formatCurrency(invoice.grandTotal||0)}</Text>
           </View>
           <View style={[styles.divider,{backgroundColor:theme.border}]}/>
           <View style={styles.sumRow}>
-            <Text style={[styles.sumL,{color:theme.textSecondary}]}>Amount Paid</Text>
+            <Text style={[styles.sumL,{color:theme.textSecondary}]}>{T('amount')}</Text>
             <Text style={[styles.sumV,{color:theme.green}]}>{formatCurrency(invoice.amountPaid||0)}</Text>
           </View>
           <View style={[styles.balRow,{backgroundColor:Number(invoice.balance||0)>0?theme.amberBg:theme.greenBg}]}>
             <Text style={[styles.balL,{color:Number(invoice.balance||0)>0?theme.amber:theme.green}]}>
-              {Number(invoice.balance||0)>0?'Balance Due':'Fully Paid ✓'}
+              {Number(invoice.balance||0)>0?T('pending_pay'):'Paid'}
             </Text>
             <Text style={[styles.balV,{color:Number(invoice.balance||0)>0?theme.amber:theme.green}]}>
               {formatCurrency(Math.abs(invoice.balance||0))}

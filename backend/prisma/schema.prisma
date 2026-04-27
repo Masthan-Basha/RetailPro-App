@@ -8,17 +8,20 @@ datasource db {
 }
 
 model User {
-  id        String      @id @default(uuid())
-  name      String
-  email     String      @unique
-  password  String
-  shopName  String
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
-  Customers Customer[]
-  Dealers   Dealer[]
-  Inventory Inventory[]
-  Invoices  Invoice[]
+  id                   String      @id @default(uuid())
+  name                 String
+  email                String      @unique
+  password             String
+  shopName             String
+  googleId             String?     @unique
+  resetPasswordToken   String?
+  resetPasswordExpires DateTime?
+  createdAt            DateTime    @default(now())
+  updatedAt            DateTime    @updatedAt
+  Customers            Customer[]
+  Dealers              Dealer[]
+  Inventory            Inventory[]
+  Invoices             Invoice[]
 }
 
 model Inventory {

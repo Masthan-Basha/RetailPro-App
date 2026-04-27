@@ -8,11 +8,13 @@ import {invoiceAPI} from '../../utils/api';
 import {formatCurrency,formatDate} from '../../utils/format';
 import {SPACING,RADIUS,SHADOW} from '../../utils/theme';
 import { Feather } from '@expo/vector-icons';
+import {useTranslate} from '../../hooks/useTranslate';
 
 const TABS=['all','paid','pending','partial','overdue'];
 
 export default function InvoiceListScreen({navigation}){
   const {theme}=useTheme();
+  const {T} = useTranslate();
   const [invoices,setInvoices]=useState([]);
   const [loading,setLoading]=useState(true);
   const [refreshing,setRefreshing]=useState(false);
@@ -38,28 +40,28 @@ export default function InvoiceListScreen({navigation}){
 
   return(
     <View style={[styles.container,{backgroundColor:theme.bgBase}]}>
-      <ScreenHeader title="Invoices" subtitle={`${filtered.length} invoices`}
+      <ScreenHeader title={T('invoices')} subtitle={`${filtered.length} ${T('invoices')}`}
         action={
           <TouchableOpacity style={[styles.addBtn,{backgroundColor:theme.accent},SHADOW.sm]} onPress={()=>navigation.navigate('CreateInvoice')}>
             <Feather name="plus" size={16} color="#fff" />
-            <Text style={styles.addBtnText}>New</Text>
+            <Text style={styles.addBtnText}>{T('add_item')}</Text>
           </TouchableOpacity>
         }/>
 
       <View style={[styles.strip,{backgroundColor:theme.bgSurface,borderBottomColor:theme.border}]}>
         <View style={styles.si}>
           <Text style={[styles.sv,{color:theme.textPrimary}]}>{formatCurrency(total)}</Text>
-          <Text style={[styles.sl,{color:theme.textSecondary}]}>Total</Text>
+          <Text style={[styles.sl,{color:theme.textSecondary}]}>{T('amount')}</Text>
         </View>
         <View style={[styles.div,{backgroundColor:theme.border}]}/>
         <View style={styles.si}>
           <Text style={[styles.sv,{color:theme.green}]}>{formatCurrency(collected)}</Text>
-          <Text style={[styles.sl,{color:theme.textSecondary}]}>Collected</Text>
+          <Text style={[styles.sl,{color:theme.textSecondary}]}>Paid</Text>
         </View>
         <View style={[styles.div,{backgroundColor:theme.border}]}/>
         <View style={styles.si}>
           <Text style={[styles.sv,{color:theme.amber}]}>{formatCurrency(total-collected)}</Text>
-          <Text style={[styles.sl,{color:theme.textSecondary}]}>Outstanding</Text>
+          <Text style={[styles.sl,{color:theme.textSecondary}]}>Pending</Text>
         </View>
       </View>
 
@@ -98,8 +100,8 @@ export default function InvoiceListScreen({navigation}){
           </TouchableOpacity>
         )}
         ItemSeparatorComponent={()=><View style={[styles.sep,{backgroundColor:theme.border}]}/>}
-        ListEmptyComponent={loading?<Text style={[styles.loadText,{color:theme.textMuted}]}>Loading…</Text>
-          :<EmptyState icon="🧾" title={invoices.length===0?'No invoices yet':'No invoices match'} subtitle={invoices.length===0?'Tap + New to create your first invoice':''}/>}
+        ListEmptyComponent={loading?<Text style={[styles.loadText,{color:theme.textMuted}]}>{T('loading')}</Text>
+          :<EmptyState icon="🧾" title={invoices.length===0?T('no_data'):T('no_data')} subtitle={invoices.length===0?T('create_first'):''}/>}
         contentContainerStyle={filtered.length===0?{flex:1}:{paddingBottom:80}}
       />
     </View>

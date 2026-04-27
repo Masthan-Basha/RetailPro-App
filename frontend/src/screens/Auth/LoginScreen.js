@@ -6,9 +6,11 @@ import InputField from '../../components/InputField';
 import PrimaryButton from '../../components/PrimaryButton';
 import {COLORS,SPACING,RADIUS} from '../../utils/theme';
 import {LinearGradient} from 'expo-linear-gradient';
-
+import { Feather } from '@expo/vector-icons';
+import {useTranslate} from '../../hooks/useTranslate';
 export default function LoginScreen({navigation}){
   const {login}=useAuth();
+  const {T}=useTranslate();
   const insets=useSafeAreaInsets();
   const [form,setForm]=useState({email:'',password:''});
   const [error,setError]=useState('');
@@ -30,18 +32,21 @@ export default function LoginScreen({navigation}){
           <View style={styles.logoMark}><Text style={styles.logoLetter}>R</Text></View>
           <Text style={styles.logoText}>Retail<Text style={{fontWeight:'800'}}>Pro</Text></Text>
         </View>
-        <Text style={styles.title}>Welcome back</Text>
-        <Text style={styles.subtitle}>Sign in to manage your retail business</Text>
+        <Text style={styles.title}>{T('welcome_back')}</Text>
+        <Text style={styles.subtitle}>{T('enter_cred')}</Text>
         <View style={styles.card}>
           {!!error&&<View style={styles.errBox}><Text style={styles.errText}>{error}</Text></View>}
-          <InputField label="Email address" placeholder="you@shop.com" value={form.email} onChangeText={v=>setForm({...form,email:v})} keyboardType="email-address" autoCapitalize="none"/>
-          <InputField label="Password" placeholder="Enter password" value={form.password} onChangeText={v=>setForm({...form,password:v})} secureTextEntry/>
-          <PrimaryButton title="Sign In" onPress={handle} loading={loading} style={{marginTop:4}}/>
+          <InputField label={T('email_addr')} placeholder="you@shop.com" value={form.email} onChangeText={v=>setForm({...form,email:v})} keyboardType="email-address" autoCapitalize="none"/>
+          <InputField label={T('new_pass')} placeholder="Enter password" value={form.password} onChangeText={v=>setForm({...form,password:v})} secureTextEntry/>
+          <TouchableOpacity onPress={()=>navigation.navigate('ForgotPassword')} style={styles.forgotBtn}>
+            <Text style={styles.forgotText}>{T('forgot_pass')}</Text>
+          </TouchableOpacity>
+          <PrimaryButton title={T('login_btn')} onPress={handle} loading={loading} style={{marginTop:12}}/>
         </View>
         <View style={styles.switchRow}>
-          <Text style={styles.switchText}>Don't have an account? </Text>
+          <Text style={styles.switchText}>{T('no_account')} </Text>
           <TouchableOpacity onPress={()=>navigation.navigate('Signup')}>
-            <Text style={styles.link}>Create one</Text>
+            <Text style={styles.link}>{T('create_one')}</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -61,7 +66,15 @@ const styles=StyleSheet.create({
   card:{backgroundColor:'rgba(30, 35, 48, 0.7)',borderRadius:RADIUS.xl,padding:SPACING.lg,borderWidth:1,borderColor:'rgba(255,255,255,0.05)',shadowColor:'#000',shadowOffset:{width:0,height:8},shadowOpacity:0.3,shadowRadius:15,elevation:5},
   errBox:{backgroundColor:COLORS.redBg,borderWidth:1,borderColor:COLORS.red+'66',borderRadius:RADIUS.md,padding:12,marginBottom:SPACING.md},
   errText:{color:COLORS.red,fontSize:13},
-  switchRow:{flexDirection:'row',justifyContent:'center',marginTop:SPACING.lg},
+  forgotBtn:{alignSelf:'flex-end',marginTop:SPACING.xs},
+  forgotText:{color:COLORS.accent,fontSize:13,fontWeight:'600'},
+  divider:{flexDirection:'row',alignItems:'center',marginVertical:SPACING.lg},
+  line:{flex:1,height:1,backgroundColor:'rgba(255,255,255,0.1)'},
+  dividerText:{color:COLORS.textMuted,fontSize:12,marginHorizontal:10},
+  googleBtn:{flexDirection:'row',alignItems:'center',justifyContent:'center',backgroundColor:'rgba(255,255,255,0.05)',borderRadius:RADIUS.md,paddingVertical:12,gap:10,borderWidth:1,borderColor:'rgba(255,255,255,0.1)'},
+  googleBtnText:{color:COLORS.textPrimary,fontSize:14,fontWeight:'600'},
+  disabledBtn:{opacity:0.5},
+  switchRow:{flexDirection:'row',justifyContent:'center',marginTop:SPACING.xl},
   switchText:{color:COLORS.textMuted,fontSize:13},
   link:{color:COLORS.accent,fontSize:13,fontWeight:'700'},
 });

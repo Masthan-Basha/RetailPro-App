@@ -9,11 +9,13 @@ import {useTheme} from '../../context/ThemeContext';
 import {customerAPI} from '../../utils/api';
 import {formatCurrency,formatDate} from '../../utils/format';
 import {SPACING,RADIUS} from '../../utils/theme';
+import {useTranslate} from '../../hooks/useTranslate';
 
 const TABS=['all','paid','pending','partial','overdue'];
 
 export default function CustomersScreen(){
   const {theme:T}=useTheme();
+  const {T:trans} = useTranslate();
   const [customers,setCustomers]=useState([]);
   const [loading,setLoading]=useState(true);
   const [refreshing,setRefreshing]=useState(false);
@@ -67,9 +69,9 @@ export default function CustomersScreen(){
         <Text style={[styles.name,{color:T.textPrimary}]}>{c.name}</Text>
         <Text style={[styles.sub,{color:T.textMuted}]}>{c.phone||'—'} · {c.address||'—'}</Text>
         <View style={styles.amtRow}>
-          <Text style={[styles.amtLabel,{color:T.textMuted}]}>Billed: <Text style={[styles.amtVal,{color:T.textPrimary}]}>{formatCurrency(c.totalBilled||0)}</Text></Text>
-          <Text style={[styles.amtLabel,{color:T.textMuted}]}>Paid: <Text style={[styles.amtVal,{color:T.green}]}>{formatCurrency(c.totalPaid||0)}</Text></Text>
-          {(c.pending||0)>0&&<Text style={[styles.amtLabel,{color:T.textMuted}]}>Pending: <Text style={[styles.amtVal,{color:T.amber}]}>{formatCurrency(c.pending||0)}</Text></Text>}
+          <Text style={[styles.amtLabel,{color:T.textMuted}]}>{trans('total_amount') || 'Billed'}: <Text style={[styles.amtVal,{color:T.textPrimary}]}>{formatCurrency(c.totalBilled||0)}</Text></Text>
+          <Text style={[styles.amtLabel,{color:T.textMuted}]}>{trans('paid') || 'Paid'}: <Text style={[styles.amtVal,{color:T.green}]}>{formatCurrency(c.totalPaid||0)}</Text></Text>
+          {(c.pending||0)>0&&<Text style={[styles.amtLabel,{color:T.textMuted}]}>{trans('pending_pay') || 'Pending'}: <Text style={[styles.amtVal,{color:T.amber}]}>{formatCurrency(c.pending||0)}</Text></Text>}
         </View>
         {c.updatedAt&&<Text style={[styles.date,{color:T.textMuted}]}>Last: {formatDate(c.updatedAt)}</Text>}
       </View>
@@ -77,7 +79,7 @@ export default function CustomersScreen(){
         <Badge status={c.status||'new'}/>
         {(c.pending||0)>0&&(
           <TouchableOpacity style={[styles.settleBtn,{backgroundColor:T.amberBg,borderColor:T.amber+'44'}]} onPress={()=>{setSelected(c);setSettleAmt('');setSettleModal(true);}}>
-            <Text style={[styles.settleBtnText,{color:T.amber}]}>💳 Settle</Text>
+            <Text style={[styles.settleBtnText,{color:T.amber}]}>💳 {trans('settle_pay') || 'Settle'}</Text>
           </TouchableOpacity>
         )}
       </View>
@@ -87,25 +89,25 @@ export default function CustomersScreen(){
   return(
     <View style={[styles.container,{backgroundColor:T.bgBase}]}>
       <ScreenHeader
-        title="Customers"
-        subtitle={`${customers.length} customers`}
-        action={<TouchableOpacity style={[styles.addBtn,{backgroundColor:T.green}]} onPress={()=>setAddModal(true)}><Text style={styles.addBtnText}>+ Add</Text></TouchableOpacity>}
+        title={trans('customers')}
+        subtitle={`${customers.length} ${trans('customers')}`}
+        action={<TouchableOpacity style={[styles.addBtn,{backgroundColor:T.green}]} onPress={()=>setAddModal(true)}><Text style={styles.addBtnText}>+ {trans('new_customer') || trans('signup')}</Text></TouchableOpacity>}
       />
 
       <View style={[styles.statsRow,{backgroundColor:T.bgSurface,borderBottomColor:T.border}]}>
         <View style={styles.statItem}>
           <Text style={[styles.statVal,{color:T.textPrimary}]}>{customers.length}</Text>
-          <Text style={[styles.statLbl,{color:T.textSecondary}]}>Total</Text>
+          <Text style={[styles.statLbl,{color:T.textSecondary}]}>{trans('total_customers')}</Text>
         </View>
         <View style={[styles.statDivider,{backgroundColor:T.border}]}/>
         <View style={styles.statItem}>
           <Text style={[styles.statVal,{color:T.amber}]}>{formatCurrency(totalPending)}</Text>
-          <Text style={[styles.statLbl,{color:T.textSecondary}]}>Pending</Text>
+          <Text style={[styles.statLbl,{color:T.textSecondary}]}>{trans('pending_pay')}</Text>
         </View>
         <View style={[styles.statDivider,{backgroundColor:T.border}]}/>
         <View style={styles.statItem}>
           <Text style={[styles.statVal,{color:T.red}]}>{overdueCount}</Text>
-          <Text style={[styles.statLbl,{color:T.textSecondary}]}>Overdue</Text>
+          <Text style={[styles.statLbl,{color:T.textSecondary}]}>{trans('low_stock') || 'Overdue'}</Text>
         </View>
       </View>
 
@@ -133,25 +135,24 @@ export default function CustomersScreen(){
         renderItem={renderItem}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={T.accent}/>}
         ListEmptyComponent={
-          loading?<Text style={[styles.loadText,{color:T.textMuted}]}>Loading…</Text>
-          :<EmptyState icon="👥" title={customers.length===0?'No customers yet':'No customers match your search'} subtitle={customers.length===0?'Tap + Add to add your first customer':''}/>
+          loading?<Text style={[styles.loadText,{color:T.textMuted}]}>{trans('loading')}</Text>
+          :<EmptyState icon="👥" title={customers.length===0?trans('no_data'):trans('no_data')} subtitle={customers.length===0?trans('create_first'):''}/>
         }
         contentContainerStyle={filtered.length===0?{flex:1}:{paddingBottom:80}}
         ItemSeparatorComponent={()=><View style={{height:1,backgroundColor:T.border}}/>}
       />
 
-      {/* Add Customer Modal */}
       <Modal visible={addModal} animationType="slide" presentationStyle="pageSheet" onRequestClose={()=>setAddModal(false)}>
         <View style={[styles.modalContainer,{backgroundColor:T.bgBase}]}>
           <View style={[styles.modalHeader,{borderBottomColor:T.border,backgroundColor:T.bgSurface}]}>
-            <Text style={[styles.modalTitle,{color:T.textPrimary}]}>Add Customer</Text>
+            <Text style={[styles.modalTitle,{color:T.textPrimary}]}>{trans('signup')}</Text>
             <TouchableOpacity onPress={()=>setAddModal(false)}><Text style={[styles.modalClose,{color:T.textMuted}]}>✕</Text></TouchableOpacity>
           </View>
           <ScrollView contentContainerStyle={styles.modalContent} keyboardShouldPersistTaps="handled">
-            <InputField label="Full Name *" placeholder="Customer name" value={form.name} onChangeText={v=>setForm({...form,name:v})}/>
-            <InputField label="Phone" placeholder="10-digit phone" value={form.phone} onChangeText={v=>setForm({...form,phone:v})} keyboardType="phone-pad"/>
-            <InputField label="Address" placeholder="Address" value={form.address} onChangeText={v=>setForm({...form,address:v})} multiline/>
-            <PrimaryButton title="Add Customer" onPress={handleAdd} loading={saving} color={T.green} style={{marginTop:SPACING.sm}}/>
+            <InputField label={trans('full_name')} placeholder="Customer name" value={form.name} onChangeText={v=>setForm({...form,name:v})} showTranslate />
+            <InputField label={trans('email_addr') || 'Phone'} placeholder="10-digit phone" value={form.phone} onChangeText={v=>setForm({...form,phone:v})} keyboardType="phone-pad"/>
+            <InputField label={trans('address') || 'Address'} placeholder="Address" value={form.address} onChangeText={v=>setForm({...form,address:v})} multiline/>
+            <PrimaryButton title={trans('new_customer') || trans('signup')} onPress={handleAdd} loading={saving} color={T.green} style={{marginTop:SPACING.sm}}/>
           </ScrollView>
         </View>
       </Modal>
@@ -171,8 +172,8 @@ export default function CustomersScreen(){
                   <View key={l} style={styles.settleRow}><Text style={[styles.settleLabel,{color:T.textMuted}]}>{l}</Text><Text style={[styles.settleValue,{color:c}]}>{v}</Text></View>
                 ))}
               </View>
-              <InputField label="Amount Receiving (₹) *" placeholder="0.00" value={settleAmt} onChangeText={setSettleAmt} keyboardType="decimal-pad"/>
-              <PrimaryButton title="Confirm Settlement" onPress={handleSettle} loading={saving} color={T.green} style={{marginTop:SPACING.sm}}/>
+              <InputField label={(trans('amt_recv') || 'Amount Receiving') + ' (₹) *'} placeholder="0.00" value={settleAmt} onChangeText={setSettleAmt} keyboardType="decimal-pad"/>
+              <PrimaryButton title={trans('settle_pay') || "Confirm Settlement"} onPress={handleSettle} loading={saving} color={T.green} style={{marginTop:SPACING.sm}}/>
             </ScrollView>
           )}
         </View>

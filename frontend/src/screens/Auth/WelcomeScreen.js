@@ -3,12 +3,16 @@ import {View, Text, StyleSheet, TouchableOpacity, Animated, Dimensions} from 're
 import {COLORS, SPACING, RADIUS} from '../../utils/theme';
 import {LinearGradient} from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
+import { useLanguage } from '../../context/LanguageContext';
+import { useTranslate } from '../../hooks/useTranslate';
 
 const {width} = Dimensions.get('window');
 
 export default function WelcomeScreen({navigation}) {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(50)).current;
+  const { T } = useTranslate();
+  const { language, changeLanguage, languages } = useLanguage();
 
   useEffect(() => {
     Animated.parallel([
@@ -67,7 +71,7 @@ export default function WelcomeScreen({navigation}) {
               start={{x: 0, y: 0}} end={{x: 1, y: 0}}
               style={styles.buttonGradient}
             >
-              <Text style={styles.primaryButtonText}>Get Started Now</Text>
+              <Text style={styles.primaryButtonText}>{T('get_started')}</Text>
               <Feather name="arrow-right" size={18} color="#fff" style={{marginLeft: 8}}/>
             </LinearGradient>
           </TouchableOpacity>
@@ -77,8 +81,23 @@ export default function WelcomeScreen({navigation}) {
             style={styles.secondaryButton}
             onPress={() => navigation.navigate('Login')}
           >
-            <Text style={styles.secondaryButtonText}>Log In</Text>
+            <Text style={styles.secondaryButtonText}>{T('login')}</Text>
           </TouchableOpacity>
+        </View>
+
+        <View style={styles.langSection}>
+          <Text style={styles.langTitle}>{T('choose_lang')}</Text>
+          <View style={styles.langRow}>
+            {languages.map(l => (
+              <TouchableOpacity 
+                key={l.code} 
+                onPress={() => changeLanguage(l.code)}
+                style={[styles.langChip, language === l.code && styles.langChipActive]}
+              >
+                <Text style={[styles.langText, language === l.code && styles.langTextActive]}>{l.native}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
         </View>
       </Animated.View>
     </View>
@@ -150,5 +169,12 @@ const styles = StyleSheet.create({
     color: COLORS.textPrimary,
     fontSize: 15,
     fontWeight: '700',
-  }
+  },
+  langSection: {marginTop: 20, alignItems: 'center', width: '100%'},
+  langTitle: {color: COLORS.textMuted, fontSize: 12, marginBottom: 12, textTransform: 'uppercase', letterSpacing: 1},
+  langRow: {flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 8},
+  langChip: {paddingHorizontal: 16, paddingVertical: 8, borderRadius: RADIUS.full, borderWidth: 1, borderColor: COLORS.borderLight, backgroundColor: 'rgba(255,255,255,0.02)'},
+  langChipActive: {backgroundColor: COLORS.accent, borderColor: COLORS.accent},
+  langText: {color: COLORS.textSecondary, fontSize: 13, fontWeight: '600'},
+  langTextActive: {color: '#fff'}
 });

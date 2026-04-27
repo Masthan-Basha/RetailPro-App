@@ -7,6 +7,7 @@ import {useTheme} from '../../context/ThemeContext';
 import {invoiceAPI,inventoryAPI,customerAPI} from '../../utils/api';
 import {formatCurrency} from '../../utils/format';
 import {SPACING,RADIUS} from '../../utils/theme';
+import {useTranslate} from '../../hooks/useTranslate';
 
 const GST=[0,5,12,18,28];
 const UNITS=['pcs','kg','m','l','can','roll','box','set'];
@@ -14,6 +15,7 @@ const newItem=()=>({id:Date.now().toString(),name:'',hsnCode:'',qty:'1',unit:'pc
 
 export default function CreateInvoiceScreen({navigation}){
   const {theme}=useTheme();
+  const {T} = useTranslate();
   const [customer,setCustomer]=useState({name:'',phone:'',address:''});
   const [items,setItems]=useState([newItem()]);
   const [mode,setMode]=useState('cash');
@@ -86,30 +88,30 @@ export default function CreateInvoiceScreen({navigation}){
     finally{setSaving(false);}
   };
 
-  const T=theme;
-  const s=createStyles(T);
+  const S=theme;
+  const s=createStyles(S);
 
   return(
-    <KeyboardAvoidingView style={[s.container,{backgroundColor:T.bgBase}]} behavior={Platform.OS==='ios'?'padding':undefined}>
-      <ScreenHeader title="New Invoice" onBack={()=>navigation.goBack()}
-        action={<TouchableOpacity style={[s.saveBtn,{backgroundColor:T.accent}]} onPress={save} disabled={saving}><Text style={s.saveTxt}>Save</Text></TouchableOpacity>}/>
+    <KeyboardAvoidingView style={[s.container,{backgroundColor:S.bgBase}]} behavior={Platform.OS==='ios'?'padding':undefined}>
+      <ScreenHeader title={T('invoices')} onBack={()=>navigation.goBack()}
+        action={<TouchableOpacity style={[s.saveBtn,{backgroundColor:S.accent}]} onPress={save} disabled={saving}><Text style={s.saveTxt}>{T('save')}</Text></TouchableOpacity>}/>
       <ScrollView contentContainerStyle={s.content} keyboardShouldPersistTaps="handled">
 
         {/* ── Customer ── */}
-        <Text style={[s.sec,{color:T.textPrimary}]}>Customer Details</Text>
-        <View style={[s.card,{backgroundColor:T.bgCard,borderColor:T.border}]}>
+        <Text style={[s.sec,{color:S.textPrimary}]}>{T('customers')}</Text>
+        <View style={[s.card,{backgroundColor:S.bgCard,borderColor:S.border}]}>
           {/* Customer Name with autocomplete */}
           <View style={{position:'relative',zIndex:20}}>
-            <Text style={[s.fl,{color:T.textSecondary}]}>Customer Name *</Text>
-            <TextInput style={[s.ii,{backgroundColor:T.bgElevated,borderColor:T.borderLight,color:T.textPrimary}]}
-              placeholder="Type name to search existing…" placeholderTextColor={T.textMuted}
+            <Text style={[s.fl,{color:S.textSecondary}]}>{T('full_name')} *</Text>
+            <TextInput style={[s.ii,{backgroundColor:S.bgElevated,borderColor:S.borderLight,color:S.textPrimary}]}
+              placeholder={T('loading')} placeholderTextColor={S.textMuted}
               value={customer.name} onChangeText={searchCustomer}/>
             {custSugg.length>0&&(
-              <View style={[s.drop,{backgroundColor:T.bgCard,borderColor:T.borderLight}]}>
+              <View style={[s.drop,{backgroundColor:S.bgCard,borderColor:S.borderLight}]}>
                 {custSugg.map(c=>(
-                  <TouchableOpacity key={c._id} style={[s.dropItem,{borderBottomColor:T.border}]} onPress={()=>selectCustomer(c)}>
-                    <Text style={[s.dropName,{color:T.textPrimary}]}>{c.name}</Text>
-                    <Text style={[s.dropSub,{color:T.textMuted}]}>{c.phone||'—'} · {c.address||'—'}</Text>
+                  <TouchableOpacity key={c._id} style={[s.dropItem,{borderBottomColor:S.border}]} onPress={()=>selectCustomer(c)}>
+                    <Text style={[s.dropName,{color:S.textPrimary}]}>{c.name}</Text>
+                    <Text style={[s.dropSub,{color:S.textMuted}]}>{c.phone||'—'} · {c.address||'—'}</Text>
                   </TouchableOpacity>
                 ))}
               </View>
@@ -117,16 +119,16 @@ export default function CreateInvoiceScreen({navigation}){
           </View>
           {/* Phone */}
           <View style={{marginTop:SPACING.sm,position:'relative',zIndex:10}}>
-            <Text style={[s.fl,{color:T.textSecondary,marginTop:SPACING.sm}]}>Phone</Text>
-            <TextInput style={[s.ii,{backgroundColor:T.bgElevated,borderColor:T.borderLight,color:T.textPrimary}]}
-              placeholder="Phone number" placeholderTextColor={T.textMuted} keyboardType="phone-pad"
+            <Text style={[s.fl,{color:S.textSecondary,marginTop:SPACING.sm}]}>Phone</Text>
+            <TextInput style={[s.ii,{backgroundColor:S.bgElevated,borderColor:S.borderLight,color:S.textPrimary}]}
+              placeholder="Phone number" placeholderTextColor={S.textMuted} keyboardType="phone-pad"
               value={customer.phone} onChangeText={searchByPhone}/>
             {custSugg.length>0&&customer.name===''&&(
-              <View style={[s.drop,{backgroundColor:T.bgCard,borderColor:T.borderLight}]}>
+              <View style={[s.drop,{backgroundColor:S.bgCard,borderColor:S.borderLight}]}>
                 {custSugg.map(c=>(
-                  <TouchableOpacity key={c._id} style={[s.dropItem,{borderBottomColor:T.border}]} onPress={()=>selectCustomer(c)}>
-                    <Text style={[s.dropName,{color:T.textPrimary}]}>{c.name}</Text>
-                    <Text style={[s.dropSub,{color:T.textMuted}]}>{c.phone||'—'}</Text>
+                  <TouchableOpacity key={c._id} style={[s.dropItem,{borderBottomColor:S.border}]} onPress={()=>selectCustomer(c)}>
+                    <Text style={[s.dropName,{color:S.textPrimary}]}>{c.name}</Text>
+                    <Text style={[s.dropSub,{color:S.textMuted}]}>{c.phone||'—'}</Text>
                   </TouchableOpacity>
                 ))}
               </View>
@@ -137,9 +139,9 @@ export default function CreateInvoiceScreen({navigation}){
 
         {/* ── Items ── */}
         <View style={s.itemsHeader}>
-          <Text style={[s.sec,{color:T.textPrimary,marginTop:0,marginBottom:0}]}>Items</Text>
-          <TouchableOpacity style={[s.addRow,{backgroundColor:T.bgElevated,borderColor:T.border}]} onPress={()=>setItems(p=>[...p,newItem()])}>
-            <Text style={[s.addRowTxt,{color:T.accent}]}>+ Add Row</Text>
+          <Text style={[s.sec,{color:S.textPrimary,marginTop:0,marginBottom:0}]}>{T('bill_items')}</Text>
+          <TouchableOpacity style={[s.addRow,{backgroundColor:S.bgElevated,borderColor:S.border}]} onPress={()=>setItems(p=>[...p,newItem()])}>
+            <Text style={[s.addRowTxt,{color:S.accent}]}>+ {T('add_item')}</Text>
           </TouchableOpacity>
         </View>
 
@@ -147,16 +149,16 @@ export default function CreateInvoiceScreen({navigation}){
           const lt=(parseFloat(item.price)||0)*(parseFloat(item.qty)||0);
           const ltTax=taxFree?0:lt*(item.gst/100);
           return(
-            <View key={item.id} style={[s.itemCard,{backgroundColor:T.bgCard,borderColor:T.border}]}>
+            <View key={item.id} style={[s.itemCard,{backgroundColor:S.bgCard,borderColor:S.border}]}>
               <View style={s.row}>
                 <View style={{flex:1,position:'relative',zIndex:100-idx}}>
-                  <Text style={[s.fl,{color:T.textSecondary}]}>Item Name</Text>
-                  <TextInput style={[s.ii,{backgroundColor:T.bgElevated,borderColor:T.borderLight,color:T.textPrimary}]}
-                    placeholder="Type to search…" placeholderTextColor={T.textMuted} value={item.name} onChangeText={v=>searchItem(idx,v)}/>
+                  <Text style={[s.fl,{color:S.textSecondary}]}>{T('item_name')}</Text>
+                  <TextInput style={[s.ii,{backgroundColor:S.bgElevated,borderColor:S.borderLight,color:S.textPrimary}]}
+                    placeholder={T('loading')} placeholderTextColor={S.textMuted} value={item.name} onChangeText={v=>searchItem(idx,v)}/>
                   {sugg.idx===idx&&sugg.list.length>0&&(
-                    <View style={[s.drop,{backgroundColor:T.bgElevated,borderColor:T.borderLight}]}>
+                    <View style={[s.drop,{backgroundColor:S.bgElevated,borderColor:S.borderLight}]}>
                       {sugg.list.map(sv=>(
-                        <TouchableOpacity key={sv._id} style={[s.dropItem,{borderBottomColor:T.border}]}
+                        <TouchableOpacity key={sv._id} style={[s.dropItem,{borderBottomColor:S.border}]}
                           onPress={()=>{
                             upd(idx,'name',sv.name);
                             upd(idx,'hsnCode',sv.hsnCode||'');
@@ -164,43 +166,43 @@ export default function CreateInvoiceScreen({navigation}){
                             upd(idx,'unit',sv.unit||'pcs');
                             setSugg({idx:-1,list:[]});
                           }}>
-                          <Text style={[s.dropName,{color:T.textPrimary}]}>{sv.name}</Text>
-                          <Text style={[s.dropSub,{color:T.textMuted}]}>{sv.hsnCode} · ₹{sv.price} · {sv.unit||'pcs'}</Text>
+                          <Text style={[s.dropName,{color:S.textPrimary}]}>{sv.name}</Text>
+                          <Text style={[s.dropSub,{color:S.textMuted}]}>{sv.hsnCode} · ₹{sv.price} · {sv.unit||'pcs'}</Text>
                         </TouchableOpacity>
                       ))}
                     </View>
                   )}
                 </View>
                 <View style={{width:80}}>
-                  <Text style={[s.fl,{color:T.textSecondary}]}>HSN</Text>
-                  <TextInput style={[s.ii,{backgroundColor:T.bgElevated,borderColor:T.borderLight,color:T.textPrimary}]}
-                    placeholder="HSN" placeholderTextColor={T.textMuted} value={item.hsnCode} onChangeText={v=>upd(idx,'hsnCode',v)}/>
+                  <Text style={[s.fl,{color:S.textSecondary}]}>{T('hsn')}</Text>
+                  <TextInput style={[s.ii,{backgroundColor:S.bgElevated,borderColor:S.borderLight,color:S.textPrimary}]}
+                    placeholder="HSN" placeholderTextColor={S.textMuted} value={item.hsnCode} onChangeText={v=>upd(idx,'hsnCode',v)}/>
                 </View>
               </View>
 
               {/* Qty, Unit chips, Price, GST */}
               <View style={s.row}>
                 <View style={{flex:1}}>
-                  <Text style={[s.fl,{color:T.textSecondary}]}>Qty</Text>
-                  <TextInput style={[s.ii,{backgroundColor:T.bgElevated,borderColor:T.borderLight,color:T.textPrimary}]}
+                  <Text style={[s.fl,{color:S.textSecondary}]}>{T('qty')}</Text>
+                  <TextInput style={[s.ii,{backgroundColor:S.bgElevated,borderColor:S.borderLight,color:S.textPrimary}]}
                     value={item.qty} onChangeText={v=>upd(idx,'qty',v)} keyboardType="numeric"/>
                 </View>
                 <View style={{width:SPACING.sm}}/>
                 <View style={{flex:1}}>
-                  <Text style={[s.fl,{color:T.textSecondary}]}>Price (₹)</Text>
-                  <TextInput style={[s.ii,{backgroundColor:T.bgElevated,borderColor:T.borderLight,color:T.textPrimary}]}
-                    placeholder="0.00" placeholderTextColor={T.textMuted} value={item.price} onChangeText={v=>upd(idx,'price',v)} keyboardType="decimal-pad"/>
+                  <Text style={[s.fl,{color:S.textSecondary}]}>{T('price')} (₹)</Text>
+                  <TextInput style={[s.ii,{backgroundColor:S.bgElevated,borderColor:S.borderLight,color:S.textPrimary}]}
+                    placeholder="0.00" placeholderTextColor={S.textMuted} value={item.price} onChangeText={v=>upd(idx,'price',v)} keyboardType="decimal-pad"/>
                 </View>
               </View>
 
               {/* Unit selector */}
               <View>
-                <Text style={[s.fl,{color:T.textSecondary}]}>Unit</Text>
+                <Text style={[s.fl,{color:S.textSecondary}]}>{T('unit')}</Text>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{gap:6,flexDirection:'row',paddingBottom:4}}>
                   {UNITS.map(u=>(
-                    <TouchableOpacity key={u} style={[s.chip,{backgroundColor:T.bgElevated,borderColor:T.border},item.unit===u&&{backgroundColor:T.accent,borderColor:T.accent}]}
+                    <TouchableOpacity key={u} style={[s.chip,{backgroundColor:S.bgElevated,borderColor:S.border},item.unit===u&&{backgroundColor:S.accent,borderColor:S.accent}]}
                       onPress={()=>upd(idx,'unit',u)}>
-                      <Text style={[s.chipTxt,{color:item.unit===u?'#fff':T.textMuted}]}>{u}</Text>
+                      <Text style={[s.chipTxt,{color:item.unit===u?'#fff':S.textMuted}]}>{u}</Text>
                     </TouchableOpacity>
                   ))}
                 </ScrollView>
@@ -208,11 +210,11 @@ export default function CreateInvoiceScreen({navigation}){
 
               {!taxFree&&(
                 <View>
-                  <Text style={[s.fl,{color:T.textSecondary}]}>GST%</Text>
+                  <Text style={[s.fl,{color:S.textSecondary}]}>GST%</Text>
                   <View style={s.gstRow}>
                     {GST.map(r=>(
-                      <TouchableOpacity key={r} style={[s.gst,{backgroundColor:T.bgElevated,borderColor:T.border},item.gst===r&&{backgroundColor:T.accent,borderColor:T.accent}]} onPress={()=>upd(idx,'gst',r)}>
-                        <Text style={[s.gstTxt,{color:item.gst===r?'#fff':T.textMuted}]}>{r}</Text>
+                      <TouchableOpacity key={r} style={[s.gst,{backgroundColor:S.bgElevated,borderColor:S.border},item.gst===r&&{backgroundColor:S.accent,borderColor:S.accent}]} onPress={()=>upd(idx,'gst',r)}>
+                        <Text style={[s.gstTxt,{color:item.gst===r?'#fff':S.textMuted}]}>{r}</Text>
                       </TouchableOpacity>
                     ))}
                   </View>
@@ -220,45 +222,45 @@ export default function CreateInvoiceScreen({navigation}){
               )}
 
               <View style={s.itemFoot}>
-                <Text style={[s.lt,{color:T.accent}]}>{formatCurrency(lt+ltTax)}</Text>
-                {items.length>1&&<TouchableOpacity onPress={()=>setItems(p=>p.filter((_,i)=>i!==idx))}><Text style={[s.rem,{color:T.red}]}>Remove ✕</Text></TouchableOpacity>}
+                <Text style={[s.lt,{color:S.accent}]}>{formatCurrency(lt+ltTax)}</Text>
+                {items.length>1&&<TouchableOpacity onPress={()=>setItems(p=>p.filter((_,i)=>i!==idx))}><Text style={[s.rem,{color:S.red}]}>{T('cancel')} ✕</Text></TouchableOpacity>}
               </View>
             </View>
           );
         })}
 
         {/* ── Summary ── */}
-        <Text style={[s.sec,{color:T.textPrimary}]}>Summary</Text>
-        <View style={[s.card,{backgroundColor:T.bgCard,borderColor:T.border}]}>
-          <View style={s.sumRow}><Text style={[s.sumL,{color:T.textSecondary}]}>Subtotal</Text><Text style={[s.sumV,{color:T.textPrimary}]}>{formatCurrency(subtotal)}</Text></View>
+        <Text style={[s.sec,{color:S.textPrimary}]}>{T('pay_summary')}</Text>
+        <View style={[s.card,{backgroundColor:S.bgCard,borderColor:S.border}]}>
+          <View style={s.sumRow}><Text style={[s.sumL,{color:S.textSecondary}]}>Subtotal</Text><Text style={[s.sumV,{color:S.textPrimary}]}>{formatCurrency(subtotal)}</Text></View>
           <TouchableOpacity style={s.sumRow} onPress={()=>setTaxFree(!taxFree)}>
             <View style={s.toggleRow}>
-              <View style={[s.toggle,{backgroundColor:T.border},taxFree&&{backgroundColor:T.accent}]}><View style={[s.thumb,taxFree&&s.thumbOn]}/></View>
-              <Text style={[s.sumL,{color:T.textSecondary}]}>Tax-Free Quotation</Text>
+              <View style={[s.toggle,{backgroundColor:S.border},taxFree&&{backgroundColor:S.accent}]}><View style={[s.thumb,taxFree&&s.thumbOn]}/></View>
+              <Text style={[s.sumL,{color:S.textSecondary}]}>Tax-Free Quotation</Text>
             </View>
-            <Text style={[s.sumV,taxFree&&{color:T.textMuted}]}>{taxFree?'—':formatCurrency(tax)}</Text>
+            <Text style={[s.sumV,taxFree&&{color:S.textMuted}]}>{taxFree?'—':formatCurrency(tax)}</Text>
           </TouchableOpacity>
-          <View style={[s.sumRow,s.grandRow,{borderTopColor:T.border}]}>
-            <Text style={[s.grandL,{color:T.textPrimary}]}>Grand Total</Text>
-            <Text style={[s.grandV,{color:T.textPrimary}]}>{formatCurrency(grand)}</Text>
+          <View style={[s.sumRow,s.grandRow,{borderTopColor:S.border}]}>
+            <Text style={[s.grandL,{color:S.textPrimary}]}>{T('total_amount')}</Text>
+            <Text style={[s.grandV,{color:S.textPrimary}]}>{formatCurrency(grand)}</Text>
           </View>
-          <Text style={[s.fl,{color:T.textSecondary,marginTop:SPACING.md}]}>Payment Mode</Text>
+          <Text style={[s.fl,{color:S.textSecondary,marginTop:SPACING.md}]}>{T('status')}</Text>
           <View style={s.modeRow}>
             {['cash','online','credit'].map(m=>(
-              <TouchableOpacity key={m} style={[s.modeBtn,{backgroundColor:T.bgElevated,borderColor:T.border},mode===m&&{backgroundColor:T.accentBg,borderColor:T.accent}]} onPress={()=>setMode(m)}>
-                <Text style={[s.modeTxt,{color:T.textMuted},mode===m&&{color:T.accent,fontWeight:'700'}]}>{m==='cash'?'💵':m==='online'?'📲':'📋'} {m}</Text>
+              <TouchableOpacity key={m} style={[s.modeBtn,{backgroundColor:S.bgElevated,borderColor:S.border},mode===m&&{backgroundColor:S.accentBg,borderColor:S.accent}]} onPress={()=>setMode(m)}>
+                <Text style={[s.modeTxt,{color:S.textMuted},mode===m&&{color:S.accent,fontWeight:'700'}]}>{m==='cash'?'💵':m==='online'?'📲':'📋'} {m}</Text>
               </TouchableOpacity>
             ))}
           </View>
-          <InputField label="Amount Paid (₹)" placeholder="0.00" value={paid} onChangeText={setPaid} keyboardType="decimal-pad"/>
-          <View style={[s.balRow,{backgroundColor:balance>0?T.amberBg:T.greenBg}]}>
-            <Text style={[s.balL,{color:balance>0?T.amber:T.green}]}>{balance>0?'Balance Due':'Fully Paid'}</Text>
-            <Text style={[s.balV,{color:balance>0?T.amber:T.green}]}>{formatCurrency(Math.abs(balance))}</Text>
+          <InputField label={T('amt_paid')} placeholder="0.00" value={paid} onChangeText={setPaid} keyboardType="decimal-pad"/>
+          <View style={[s.balRow,{backgroundColor:balance>0?S.amberBg:S.greenBg}]}>
+            <Text style={[s.balL,{color:balance>0?S.amber:S.green}]}>{balance>0?T('pending_pay'):'Paid'}</Text>
+            <Text style={[s.balV,{color:balance>0?S.amber:S.green}]}>{formatCurrency(Math.abs(balance))}</Text>
           </View>
         </View>
 
-        <InputField label="Notes (optional)" placeholder="Additional notes…" value={notes} onChangeText={setNotes} multiline/>
-        <PrimaryButton title="💾 Save Invoice" onPress={save} loading={saving} style={{marginBottom:SPACING.xl}}/>
+        <InputField label="Notes" placeholder="..." value={notes} onChangeText={setNotes} multiline/>
+        <PrimaryButton title={T('save')} onPress={save} loading={saving} style={{marginBottom:SPACING.xl}}/>
       </ScrollView>
     </KeyboardAvoidingView>
   );

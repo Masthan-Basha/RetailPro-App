@@ -2,6 +2,7 @@
   "expo": {
     "name": "RetailPro",
     "slug": "retailpro",
+    "scheme": "retailpro",
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "dark",
@@ -19,6 +20,13 @@
       },
       "package": "com.retailpro.app"
     },
-    "platforms": ["ios", "android", "web"]
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
+    "plugins": [
+      "expo-web-browser"
+    ]
   }
 }

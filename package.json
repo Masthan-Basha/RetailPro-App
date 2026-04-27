@@ -3,10 +3,18 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "start":       "cd frontend && npx expo start",
-    "android":     "cd frontend && npx expo start --android",
-    "ios":         "cd frontend && npx expo start --ios",
-    "backend":     "cd backend && npm run dev",
+    "start": "cd frontend && npx expo start",
+    "android": "cd frontend && npx expo start --android",
+    "ios": "cd frontend && npx expo start --ios",
+    "backend": "cd backend && npm run dev",
     "install:all": "cd frontend && npm install && cd ../backend && npm install"
+  },
+  "dependencies": {
+    "pptxgenjs": "^4.0.1",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "react-icons": "^5.6.0",
+    "react-native-web": "^0.21.0",
+    "sharp": "^0.34.5"
   }
 }
